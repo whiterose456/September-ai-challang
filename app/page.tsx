@@ -9,7 +9,7 @@ import { DebateArena } from '@/components/debate-arena';
 import { JudgeDashboard } from '@/components/judge-dashboard';
 import { SwitchSidesModal } from '@/components/switch-sides-modal';
 
-import { HISTORICAL_FIGURES } from '@/config/figures';
+import { HISTORICAL_FIGURES, getFigureById } from '@/config/figures';
 import {
   HistoricalFigure,
   TopicOption,
@@ -27,7 +27,7 @@ import {
   DEMO_ATTEMPT_1
 } from '@/lib/demo-data';
 import { saveAttempt, getPreviousAttemptsForTopic } from '@/lib/storage';
-import { Sparkles, BookOpen, ChevronRight } from 'lucide-react';
+import { BookOpen } from 'lucide-react';
 
 type AppStep = 'LANDING' | 'ARENA' | 'RESULTS';
 
@@ -45,14 +45,28 @@ export default function Home() {
 
   const [evaluation, setEvaluation] = useState<EvaluationResult | null>(null);
   const [previousAttempts, setPreviousAttempts] = useState<DebateAttempt[]>([]);
+  const [currentAttemptNumber, setCurrentAttemptNumber] = useState<number>(1);
   const [isSwitchSidesOpen, setIsSwitchSidesOpen] = useState<boolean>(false);
 
-  // Check URL query parameters for ?demo=true or ?figure=socrates
+  // Parse URL query parameters (?demo=true, ?figure=socrates&topic=democracy)
   useEffect(() => {
     if (typeof window !== 'undefined') {
       const urlParams = new URLSearchParams(window.location.search);
       if (urlParams.get('demo') === 'true') {
         launchDemoMode();
+      } else {
+        const figureId = urlParams.get('figure');
+        if (figureId) {
+          const fig = getFigureById(figureId);
+          if (fig) {
+            setModalFigure(fig);
+            const topicId = urlParams.get('topic');
+            if (topicId) {
+              const top = fig.topics.find((t) => t.id === topicId);
+              if (top) setActiveTopic(top);
+            }
+          }
+        }
       }
     }
   }, []);
@@ -65,7 +79,8 @@ export default function Home() {
     setDebateMode('DEBATE');
     setMessages(DEMO_MESSAGES);
     setEvaluation(DEMO_EVALUATION);
-    setPreviousAttempts([DEMO_ATTEMPT_1]);
+    setPreviousAttempts([]);
+    setCurrentAttemptNumber(1);
     setCurrentStep('RESULTS'); // Load immediate evaluation report
   };
 
@@ -88,21 +103,22 @@ export default function Home() {
     setModalFigure(null);
     setEvaluation(null);
 
-    // Initial greeting / prompt from historical figure
+    // Fetch past attempts for this topic before starting current debate
+    const past = getPreviousAttemptsForTopic(figure.id, topic.title);
+    setPreviousAttempts(past);
+    setCurrentAttemptNumber(past.length + 1);
+
+    // Initial greeting from historical figure
     const initialMsg: Message = {
       id: `msg-${Date.now()}`,
       sender: 'agent',
-      text: `Greetings. I am ${figure.name}. We meet today to examine "${topic.title}". You have taken the position that: "${position}". Let us test whether your reasoning holds.`,
+      text: `Greetings. I am ${figure.name}. We meet today to examine "${topic.title}". You have taken the position that: "${position}". Let us test whether your reasoning holds under scrutiny.`,
       timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
       roundNumber: 1
     };
 
     setMessages([initialMsg]);
     setCurrentStep('ARENA');
-    
-    // Load past attempts for this topic
-    const past = getPreviousAttemptsForTopic(figure.id, topic.title);
-    setPreviousAttempts(past);
 
     // Fetch initial agent challenge
     setIsLoading(true);
@@ -206,10 +222,10 @@ export default function Home() {
       const evalData: EvaluationResult = await res.json();
       setEvaluation(evalData);
 
-      // Save attempt to history
+      // Save current attempt to history
       const newAttempt: DebateAttempt = {
         id: `attempt-${Date.now()}`,
-        attemptNumber: previousAttempts.length + 1,
+        attemptNumber: currentAttemptNumber,
         timestamp: new Date().toISOString(),
         figureId: selectedFigure.id,
         topicTitle: activeTopic.title,
@@ -219,9 +235,7 @@ export default function Home() {
         evaluation: evalData
       };
 
-      const updatedHistory = saveAttempt(newAttempt);
-      setPreviousAttempts(updatedHistory.filter((a) => a.figureId === selectedFigure.id && a.topicTitle === activeTopic.title));
-
+      saveAttempt(newAttempt);
       setCurrentStep('RESULTS');
     } catch (e) {
       console.error('Judge evaluation error:', e);
@@ -316,6 +330,7 @@ export default function Home() {
             topic={activeTopic}
             userPosition={userPosition}
             previousAttempts={previousAttempts}
+            currentAttemptNumber={currentAttemptNumber}
             onRetry={handleRetry}
             onSwitchSides={() => setIsSwitchSidesOpen(true)}
             onExploreFigures={() => setCurrentStep('LANDING')}

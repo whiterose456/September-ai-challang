@@ -12,6 +12,7 @@ import {
   RotateCcw,
   RefreshCw,
   TrendingUp,
+  TrendingDown,
   Sparkles,
   ArrowRight,
   BookOpen
@@ -22,7 +23,8 @@ interface JudgeDashboardProps {
   figure: HistoricalFigure;
   topic: TopicOption;
   userPosition: string;
-  previousAttempts: DebateAttempt[];
+  previousAttempts: DebateAttempt[]; // Previous attempts prior to this attempt
+  currentAttemptNumber: number;
   onRetry: () => void;
   onSwitchSides: () => void;
   onExploreFigures: () => void;
@@ -34,6 +36,7 @@ export const JudgeDashboard: React.FC<JudgeDashboardProps> = ({
   topic,
   userPosition,
   previousAttempts,
+  currentAttemptNumber,
   onRetry,
   onSwitchSides,
   onExploreFigures,
@@ -42,20 +45,17 @@ export const JudgeDashboard: React.FC<JudgeDashboardProps> = ({
   useEffect(() => {
     if (evaluation.overallScore >= 75) {
       confetti({
-        particleCount: 80,
-        spread: 70,
-        origin: { y: 0.6 },
-        colors: ['#f59e0b', '#d97706', '#fef3c7']
+        particleCount: 85,
+        spread: 75,
+        origin: { y: 0.55 },
+        colors: ['#f59e0b', '#d97706', '#fef3c7', '#3b82f6']
       });
     }
   }, [evaluation.overallScore]);
 
-  // Calculate score improvement if user retried
-  const previousScore =
-    previousAttempts.length > 0
-      ? previousAttempts[previousAttempts.length - 1].evaluation.overallScore
-      : null;
-
+  // Calculate score improvement vs previous attempt if user has retried
+  const priorAttempt = previousAttempts.length > 0 ? previousAttempts[0] : null;
+  const previousScore = priorAttempt ? priorAttempt.evaluation.overallScore : null;
   const scoreDiff = previousScore !== null ? evaluation.overallScore - previousScore : null;
 
   const categories = [
@@ -102,21 +102,31 @@ export const JudgeDashboard: React.FC<JudgeDashboardProps> = ({
             </span>
           </div>
 
-          {/* Score Improvement Badge */}
-          {scoreDiff !== null && (
-            <div
-              className={`mt-3 inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold ${
-                scoreDiff >= 0
-                  ? 'bg-emerald-950/80 text-emerald-400 border border-emerald-800'
-                  : 'bg-rose-950/80 text-rose-400 border border-rose-800'
-              }`}
-            >
-              <TrendingUp className="w-3.5 h-3.5" />
-              <span>
-                {scoreDiff >= 0 ? `+${scoreDiff} improvement` : `${scoreDiff} points vs last attempt`}
-              </span>
-            </div>
-          )}
+          {/* Attempt & Score Progress Badges */}
+          <div className="mt-3 flex flex-col items-center gap-1.5">
+            <span className="text-[11px] font-bold text-amber-400 uppercase tracking-wider px-2.5 py-0.5 rounded bg-gray-900 border border-gray-800">
+              Attempt #{currentAttemptNumber}
+            </span>
+
+            {scoreDiff !== null && (
+              <div
+                className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold ${
+                  scoreDiff >= 0
+                    ? 'bg-emerald-950/90 text-emerald-400 border border-emerald-800'
+                    : 'bg-rose-950/90 text-rose-400 border border-rose-800'
+                }`}
+              >
+                {scoreDiff >= 0 ? (
+                  <TrendingUp className="w-3.5 h-3.5" />
+                ) : (
+                  <TrendingDown className="w-3.5 h-3.5" />
+                )}
+                <span>
+                  {scoreDiff >= 0 ? `+${scoreDiff} improvement` : `${scoreDiff} points vs Attempt #${currentAttemptNumber - 1}`}
+                </span>
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Executive Summary */}
@@ -154,7 +164,6 @@ export const JudgeDashboard: React.FC<JudgeDashboardProps> = ({
                   <span className="text-gray-200">{cat.label}</span>
                   <span className="text-amber-400">{cat.score} / 100</span>
                 </div>
-                {/* Progress bar */}
                 <div className="w-full h-2 rounded-full bg-gray-900 overflow-hidden border border-gray-800">
                   <div
                     className="h-full bg-gradient-to-r from-amber-600 to-amber-400 transition-all duration-1000 rounded-full"
@@ -237,7 +246,7 @@ export const JudgeDashboard: React.FC<JudgeDashboardProps> = ({
           className="flex items-center gap-2 px-6 py-3 rounded-xl text-sm font-bold text-gray-950 bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 shadow-xl shadow-amber-500/20 transition-all transform active:scale-95 cursor-pointer"
         >
           <RotateCcw className="w-4 h-4" />
-          <span>Try Again (Attempt {previousAttempts.length + 1})</span>
+          <span>Try Again (Attempt #{currentAttemptNumber + 1})</span>
         </button>
 
         {/* Switch Sides */}

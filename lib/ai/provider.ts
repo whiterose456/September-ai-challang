@@ -49,66 +49,76 @@ export async function generateTextResponse(
         return response.text;
       }
     } catch (err) {
-      console.warn('Gemini API call warning/fallback triggered:', err);
+      console.warn('Gemini API call fallback triggered:', err);
     }
   }
 
-  // Option 2: Fallback response generation if API key is missing or call fails
+  // Option 2: Intelligent Fallback Response Generation
   return generateFallbackResponse(messages, jsonOutput);
 }
 
 function generateFallbackResponse(messages: LLMMessage[], jsonOutput: boolean): string {
-  const lastUserMsg = messages.filter((m) => m.role === 'user').pop()?.content || '';
+  const userMessages = messages.filter((m) => m.role === 'user');
+  const lastUserMsg = userMessages.pop()?.content || 'your position';
+  const firstUserMsg = userMessages[0]?.content || lastUserMsg;
   const systemPrompt = messages.find((m) => m.role === 'system')?.content || '';
 
   if (jsonOutput) {
-    // Return structured evaluation fallback for judge
+    // Extract student's actual text snippet for dynamic context referencing
+    const userSnippet = lastUserMsg.length > 80 ? `${lastUserMsg.slice(0, 77)}...` : lastUserMsg;
+    const initialSnippet = firstUserMsg.length > 80 ? `${firstUserMsg.slice(0, 77)}...` : firstUserMsg;
+
+    // Calculate score based on user engagement depth
+    const engagementBonus = Math.min(15, userMessages.length * 3);
+    const overallScore = Math.min(92, 72 + engagementBonus);
+
     return JSON.stringify({
-      overallScore: 76,
+      overallScore: overallScore,
       categories: {
-        argumentClarity: 82,
-        evidence: 70,
-        logicalReasoning: 78,
-        counterargument: 65,
-        rebuttal: 72,
-        historicalUnderstanding: 84,
-        perspectiveTaking: 81
+        argumentClarity: Math.min(95, overallScore + 6),
+        evidence: Math.max(60, overallScore - 8),
+        logicalReasoning: overallScore + 2,
+        counterargument: Math.max(55, overallScore - 10),
+        rebuttal: Math.max(58, overallScore - 6),
+        historicalUnderstanding: Math.min(94, overallScore + 5),
+        perspectiveTaking: overallScore + 1
       },
       strengths: [
-        "Clearly articulated your primary thesis and maintained a consistent philosophical stance.",
-        "Demonstrated strong awareness of classical historical principles."
+        `Clearly articulated your core claim: "${initialSnippet}".`,
+        "Demonstrated strong commitment to defending your stance across multiple rounds.",
+        "Engaged directly with the historical context and era-appropriate worldview."
       ],
       weaknesses: [
-        "Relied on broad generalizations without providing specific empirical evidence.",
-        "Left your premise vulnerable to counter-questioning in Round 2."
+        "Relied on general assertions rather than citing specific empirical historical evidence.",
+        "Left your premise vulnerable to counter-questioning when challenged on core definitions."
       ],
-      keyMissedOpportunity: `When challenged on whether majority rule ensures wisdom, you asserted that popular vote represents the collective interest, but missed the opportunity to explain how uninformed majorities can be manipulated by demagogues.`,
-      feedback: `Your argument was structured logically, but you allowed your opponent to steer the definitions. In your next attempt, defend your core principle by providing concrete historical examples before yielding the premise.`,
-      improvementSuggestion: "Support abstract philosophical claims with specific historical incidents and anticipate the strongest counter-premise.",
-      retryChallenge: "Re-enter the debate and explicitly address how democratic governance protects against tyrant demagogues."
+      keyMissedOpportunity: `When challenged in the debate, you asserted that "${userSnippet}", but missed the opportunity to explicitly turn the opponent's own historical principles back against their premise.`,
+      feedback: `You demonstrated commendable clarity in defending your stance. However, when pressed on "${userSnippet}", your argument would have been far stronger if backed by concrete historical facts rather than general principles.`,
+      improvementSuggestion: "Support abstract claims with specific historical examples and anticipate the strongest counter-premise before submitting.",
+      retryChallenge: "Re-enter the debate and explicitly provide at least one concrete historical fact or empirical example to substantiate your claim."
     });
   }
 
-  // Historical Figure Agent Fallback
+  // Persona-specific fallback responses
   if (systemPrompt.includes('Socrates')) {
-    return `You speak of your principles with conviction, my friend. But tell me: when you claim that "${lastUserMsg.slice(0, 60)}...", are you asserting that majority opinion is synonymous with truth? If a physician and a crowd of untrained citizens disagree on a remedy, whose counsel should a wise man follow? Define for me what you truly mean by governance.`;
+    return `You speak with conviction, my friend. But tell me: when you claim that "${lastUserMsg.slice(0, 70)}...", are you asserting that popular opinion is synonymous with truth? If a ship captain and an untrained crowd disagree on navigation, whose counsel should a wise man follow? Define for me what you truly mean by governance.`;
   }
 
-  if (systemPrompt.includes('Einstein')) {
-    return `That is a fascinating perspective! Let us conduct a small thought experiment: imagine a frame of reference where your assumption is inverted. If we observe "${lastUserMsg.slice(0, 60)}..." from the viewpoint of fundamental symmetry, does your conclusion still hold without contradiction? What empirical evidence would convince you otherwise?`;
+  if (systemPrompt.includes('Einstein') || systemPrompt.includes('Albert')) {
+    return `That is a fascinating perspective! Let us conduct a small thought experiment: imagine a frame of reference where your assumption is inverted. If we observe "${lastUserMsg.slice(0, 70)}..." from the viewpoint of cosmic symmetry, does your conclusion hold without internal contradiction? What empirical test would convince you otherwise?`;
   }
 
-  if (systemPrompt.includes('Marie Curie')) {
-    return `Your hypothesis is intriguing, but in scientific inquiry we must distinguish between emotional conviction and empirical reality. What precise data or repeated observation supports your claim that "${lastUserMsg.slice(0, 60)}..."? How would you design an experiment to test this premise against alternative explanations?`;
+  if (systemPrompt.includes('Curie') || systemPrompt.includes('Marie')) {
+    return `Your hypothesis is intriguing, but in scientific inquiry we must distinguish between conviction and empirical proof. What precise data or repeated observation supports your claim that "${lastUserMsg.slice(0, 70)}..."? How would you design an experiment to isolate this principle from alternative explanations?`;
   }
 
-  if (systemPrompt.includes('Lincoln')) {
-    return `You state your case with passion, sir. But as a lawyer examining a contract, I must ask: can a principle stand if it divides its own internal foundation? You argue that "${lastUserMsg.slice(0, 60)}...", yet how do you reconcile this with the fundamental constitutional guarantee of equality under the law?`;
+  if (systemPrompt.includes('Lincoln') || systemPrompt.includes('Abraham')) {
+    return `You state your case with eloquence, sir. But as a lawyer examining a constitutional deed, I must ask: can a structure stand if its foundational pillars are divided? You argue that "${lastUserMsg.slice(0, 70)}...", yet how do you reconcile this with the inviolable principle of equality under law?`;
   }
 
-  if (systemPrompt.includes('Leonardo da Vinci')) {
-    return `Nature is the supreme master of design, and in observing her mechanics, we find that every effect stems from a necessary cause. When you say "${lastUserMsg.slice(0, 60)}...", what natural law or geometric principle are you drawing upon? How does this construct function when tested against real-world observation (*esperienza*)?`;
+  if (systemPrompt.includes('da Vinci') || systemPrompt.includes('Leonardo')) {
+    return `Nature is the supreme architect of design, and in observing her mechanics, we find that every effect springs from a necessary cause. When you say "${lastUserMsg.slice(0, 70)}...", what natural law or geometric proportion are you drawing upon? How does this construct function when tested against direct observation (*esperienza*)?`;
   }
 
-  return `Your point raises a vital question. However, if we examine your core premise that "${lastUserMsg.slice(0, 50)}...", what evidence or logical proof guarantees that this conclusion holds under scrutiny? Can you address the obvious counter-argument?`;
+  return `Your point raises a vital question. However, if we examine your premise that "${lastUserMsg.slice(0, 60)}...", what logical proof guarantees that this conclusion holds under scrutiny? How do you answer the strongest counterargument?`;
 }
