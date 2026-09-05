@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200">
+  <defs>
+    <radialGradient id="daGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#8B5CF6" stop-opacity="0.35"/>
+      <stop offset="100%" stop-color="#0B0F19" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="daBorder" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#A78BFA"/>
+      <stop offset="100%" stop-color="#4C1D95"/>
+    </linearGradient>
+  </defs>
+  <rect width="200" height="200" rx="100" fill="#111827"/>
+  <circle cx="100" cy="100" r="96" fill="url(#daGlow)"/>
+  <circle cx="100" cy="100" r="96" fill="none" stroke="url(#daBorder)" stroke-width="3"/>
+  <!-- Renaissance Vitruvian Circle & bust -->
+  <circle cx="100" cy="85" r="45" fill="none" stroke="#C4B5FD" stroke-dasharray="3,3" stroke-width="1.5"/>
+  <path d="M 60 165 C 60 130, 80 125, 100 125 C 120 125, 140 130, 140 165 Z" fill="#7C3AED" opacity="0.8"/>
+  <circle cx="100" cy="85" r="28" fill="#DDD6FE"/>
+  <!-- Flowing hair/beard -->
+  <path d="M 70 80 C 65 130, 135 130, 130 80 C 115 120, 85 120, 70 80 Z" fill="#EDE9FE"/>
+  <text x="100" y="180" text-anchor="middle" fill="#EDE9FE" font-family="serif" font-size="12" font-weight="bold">DA VINCI</text>
+</svg>

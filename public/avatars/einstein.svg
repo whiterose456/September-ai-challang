@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200">
+  <defs>
+    <radialGradient id="einGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#3B82F6" stop-opacity="0.3"/>
+      <stop offset="100%" stop-color="#0B0F19" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="einBorder" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#60A5FA"/>
+      <stop offset="100%" stop-color="#1E3A8A"/>
+    </linearGradient>
+  </defs>
+  <rect width="200" height="200" rx="100" fill="#111827"/>
+  <circle cx="100" cy="100" r="96" fill="url(#einGlow)"/>
+  <circle cx="100" cy="100" r="96" fill="none" stroke="url(#einBorder)" stroke-width="3"/>
+  <!-- Bust & Wild Hair Iconography -->
+  <path d="M 60 165 C 60 130, 80 125, 100 125 C 120 125, 140 130, 140 165 Z" fill="#2563EB" opacity="0.8"/>
+  <!-- Hair aura -->
+  <circle cx="100" cy="80" r="42" fill="#E0F2FE" opacity="0.4"/>
+  <circle cx="100" cy="88" r="28" fill="#93C5FD"/>
+  <!-- Mustache -->
+  <path d="M 80 98 Q 100 108 120 98 Q 100 92 80 98 Z" fill="#EFF6FF"/>
+  <text x="100" y="180" text-anchor="middle" fill="#E0F2FE" font-family="sans-serif" font-size="12" font-weight="bold">EINSTEIN</text>
+</svg>

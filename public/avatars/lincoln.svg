@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200">
+  <defs>
+    <radialGradient id="lincGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#EF4444" stop-opacity="0.3"/>
+      <stop offset="100%" stop-color="#0B0F19" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="lincBorder" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#F87171"/>
+      <stop offset="100%" stop-color="#7F1D1D"/>
+    </linearGradient>
+  </defs>
+  <rect width="200" height="200" rx="100" fill="#111827"/>
+  <circle cx="100" cy="100" r="96" fill="url(#lincGlow)"/>
+  <circle cx="100" cy="100" r="96" fill="none" stroke="url(#lincBorder)" stroke-width="3"/>
+  <!-- Stovepipe hat & bust -->
+  <rect x="85" y="30" width="30" height="40" fill="#450A0A" rx="2"/>
+  <rect x="75" y="68" width="50" height="6" fill="#7F1D1D" rx="2"/>
+  <path d="M 60 165 C 60 135, 80 128, 100 128 C 120 128, 140 135, 140 165 Z" fill="#DC2626" opacity="0.8"/>
+  <circle cx="100" cy="95" r="26" fill="#FCA5A5"/>
+  <!-- Beard outline -->
+  <path d="M 75 95 C 75 125, 125 125, 125 95 Z" fill="#7F1D1D"/>
+  <text x="100" y="180" text-anchor="middle" fill="#FEE2E2" font-family="serif" font-size="12" font-weight="bold">LINCOLN</text>
+</svg>
