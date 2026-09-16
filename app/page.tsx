@@ -260,7 +260,7 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0B0F19] text-gray-100 flex flex-col selection:bg-amber-500 selection:text-black">
+    <div className="min-h-screen bg-[#0B0F19] text-gray-100 flex flex-col selection:bg-amber-500 selection:text-black animated-bg">
       
       {/* Top Navbar */}
       <Navbar onStartDemo={launchDemoMode} />
