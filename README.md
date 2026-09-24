@@ -121,10 +121,10 @@ This Next.js application is fully optimized for standard Vercel deployment:
 1. Push code to GitHub repository.
 2. Import project into Vercel Dashboard.
 3. Add Environment Variable:
-   - Name: `GEMINI_API_KEY`
+   - Name: 
    - Value: `<Your Google Gemini API Key>`
 4. Deploy!
-
+5.done
 ---
 
 ## 📜 License
